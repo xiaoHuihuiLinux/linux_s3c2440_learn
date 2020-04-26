@@ -52,7 +52,7 @@ void lcd_controller_enable(void)
 {
 	if(g_p_lcd_controller_selected)//防止在g_p_lcd_controller_selected还没有赋值之前调用他
 	{
-		g_p_lcd_controller_selected->enable();
+		g_p_lcd_controller_selected->enable();//指向了一个函数
 	}
 }
 void lcd_controller_disable(void)

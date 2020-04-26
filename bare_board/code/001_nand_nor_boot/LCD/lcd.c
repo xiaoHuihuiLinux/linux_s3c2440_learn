@@ -50,17 +50,17 @@ void lcd_disable(void)
 int lcd_init(void)
 {
 	/*注册lcd*/
-	lcd_4_3_add();
+	lcd_4_3_add();//将已经有了初值的结构体变量 保存在结构体数组中
 
 	/* 注册LCD控制器 */
-	lcd_contoller_add();
+	lcd_contoller_add();//同样的将lcd控制器的结构体保存在结构体数组中
 	
 	/* 选择某款LCD */
-	select_lcd("lcd_4.3");
+	select_lcd("lcd_4.3");//将lcd的结构体数组赋给一个全局变量
 	/*选择某款lcd控制器*/
-	select_lcd_controller("s3c2440");
+	select_lcd_controller("s3c2440");//将lcd控制器的结构体数组（主要包括 控制器name 和函数指针）赋给一个全局结构体变量
 	/*使用lcd参数 初始化lcd控制器*/
-	lcd_controller_init(g_p_lcd_selected);
+	lcd_controller_init(g_p_lcd_selected);//lcd 控制器的初始化函数 接受 lcd结构体参数
 }
 
 

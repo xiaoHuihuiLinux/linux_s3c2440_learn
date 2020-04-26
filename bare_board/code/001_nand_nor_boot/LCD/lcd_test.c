@@ -6,11 +6,11 @@ void  lcd_test(void)
 	unsigned short *p;
 	unsigned int *p2;
 	/*首先初始化*/
-	lcd_init();
+	lcd_init();//1.注册lcd lcd控制器 2.选择某款lcd lcd控制器3.使用lcd参数 初始化lcd控制器
 	/*使能*/
-	lcd_enable();
+	lcd_enable();//使能lcd控制器
 	/*要写之前首先获的lcd参数 fb_base,xres,yres,bpp*/
-	get_lcd_params(&fb_base,&xres,&yres,&bpp);
+	get_lcd_params(&fb_base,&xres,&yres,&bpp);//这种传参的方式比较特别有意思，在函数中给形参的赋值
 	/*向framebuffer写数据*/
 	if(bpp == 16)
 	{
