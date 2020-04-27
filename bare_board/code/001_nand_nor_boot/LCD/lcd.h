@@ -48,5 +48,6 @@ typedef struct  lcd_params{
 	unsigned int fb_base;
 }lcd_params, *p_lcd_params; 
 
+void get_lcd_params(unsigned int *fb_base,int *xres,int *yres,int *bpp );
 
 #endif
