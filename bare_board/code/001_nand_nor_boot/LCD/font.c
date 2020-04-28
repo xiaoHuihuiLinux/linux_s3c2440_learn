@@ -3,7 +3,7 @@ static unsigned int fb_base;
 static int xres,yres,bpp;
 extern const unsigned char fontdata_8x16[];
 
-void font_init(void)
+void font_init(void)//初始化
 {
 	get_lcd_params(&fb_base,&xres,&yres,&bpp);//这种传参的方式比较特别有意思，在函数中给形参的赋值
 }
