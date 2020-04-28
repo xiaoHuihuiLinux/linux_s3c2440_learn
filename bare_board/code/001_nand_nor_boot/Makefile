@@ -8,7 +8,7 @@ objs+=LCD/lcd_4.3.o
 objs+=LCD/lcd_controller.o
 objs+=LCD/lcd_test.o
 objs+=LCD/s3c2440_lcd_controller.o
-
+objs+=LCD/font_8x16.o
 all: $(objs)#ËùÓĞµÄÒÀÀµ
 	#arm-linux-ld -Ttext 0 -Tdata 0x30000000  start.o led.o uart.o init.o main.o -o sdram.elf
 	arm-linux-ld -T sdram.lds $^ -o sdram.elf

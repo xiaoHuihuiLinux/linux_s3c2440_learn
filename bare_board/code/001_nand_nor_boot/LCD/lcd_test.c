@@ -13,6 +13,7 @@ void  lcd_test(void)
 	/*要写之前首先获的lcd参数 fb_base,xres,yres,bpp*/
 	get_lcd_params(&fb_base,&xres,&yres,&bpp);//这种传参的方式比较特别有意思，在函数中给形参的赋值
 	fb_get_lcd_params();//要得到这个参数，不得到的话draw_line 中的fb_put_pixel 这个就没有效果了
+	font_init();
 	/*向framebuffer写数据*/
 	if(bpp == 16)
 	{
@@ -74,10 +75,10 @@ void  lcd_test(void)
 			
 				 *p2++ =  0x0000FF;
 		/* black */
-		p = (unsigned short *)fb_base;
+		p2 = (unsigned int *)fb_base;
 		for (x = 0; x < xres; x++)
 			for (y = 0; y < yres; y++)
-				*p++ = 0;
+				*p2++ = 0;
 			
 	}
 	delay(100000);
@@ -91,4 +92,6 @@ void  lcd_test(void)
 	delay(1000000);
 	/*画圆*/
 	draw_circle(xres/2, yres/2, yres/4, 0xff00);//原点 坐标 颜色
+	/*输出文字*/
+	fb_print_string(10, 10, "xiaohuihui\n\rLinux",0x123456);
 }
