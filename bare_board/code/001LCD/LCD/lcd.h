@@ -1,5 +1,7 @@
+
 #ifndef _LCD_H
 #define _LCD_H
+
 
 enum {
 	NORMAL = 0,
@@ -30,9 +32,10 @@ typedef struct time_sequence {
 	int thf; /* 右边黑框, Horizontal Front porch */
 
 	int vclk;
-}time_sequence,*p_time_sequence;
+}time_sequence, *p_time_sequence;
 
-typedef struct  lcd_params{
+
+typedef struct lcd_params {
 	char *name;
 	
 	/* 引脚极性 */
@@ -40,14 +43,18 @@ typedef struct  lcd_params{
 	
 	/* 时序 */
 	time_sequence time_seq;
-	/*分辩率 bpp*/
+	
+	/* 分辨率, bpp */
 	int xres;
 	int yres;
 	int bpp;
-	/*fb base addr*/
+	
+	/* framebuffer的地址 */
 	unsigned int fb_base;
-}lcd_params, *p_lcd_params; 
+}lcd_params, *p_lcd_params;
 
-void get_lcd_params(unsigned int *fb_base,int *xres,int *yres,int *bpp );
+void get_lcd_params(unsigned int *fb_base, int *xres, int *yres, int *bpp);
 
-#endif
+#endif /* _LCD_H */
+
+

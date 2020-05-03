@@ -1,8 +1,9 @@
+
 #ifndef _FRAMEBUFFER_H
 #define _FRAMEBUFFER_H
-unsigned short convert32bppto16bpp(unsigned int rgb);
-void fb_put_pixel(int x,int y,unsigned int color);
 
+void fb_get_lcd_params(void);
+void fb_put_pixel(int x, int y, unsigned int color);
 
-#endif
+#endif /* _FRAMEBUFFER_H */
 

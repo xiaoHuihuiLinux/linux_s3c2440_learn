@@ -1,6 +1,8 @@
+
 #include "lcd.h"
 
-#define LCD_FB_BASE  0x33c00000
+#define LCD_FB_BASE 0x33c00000
+
 lcd_params lcd_4_3_params = {
 	.name = "lcd_4.3",
 	.pins_pol = {
@@ -24,13 +26,15 @@ lcd_params lcd_4_3_params = {
 
 		.vclk=	9,  /* MHz */
 	},
-	/*Horizontal signal =525 = 41 + 2+ 2+ 480*/
-	.xres = 480 ,//Horizontal display period
-	.yres = 272,//Vertical display period
-	.bpp = 32,//  16 or 32 not 24bit 
+	.xres = 480,
+	.yres = 272,
+	.bpp  = 8,  /* 16, no 24bpp */
 	.fb_base = LCD_FB_BASE,
 };
+
+
 void lcd_4_3_add(void)
 {
 	register_lcd(&lcd_4_3_params);
 }
+

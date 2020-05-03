@@ -22,6 +22,7 @@ int main(void)
 
 	//nor_flash_test();
 	lcd_test();
+	
 	return 0;
 }
 

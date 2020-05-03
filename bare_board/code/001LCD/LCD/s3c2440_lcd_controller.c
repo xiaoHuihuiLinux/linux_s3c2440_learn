@@ -1,19 +1,26 @@
+
 #include "lcd.h"
 #include "lcd_controller.h"
-#include "../s3c2440_soc.h"/*因为他在上一层*/
+#include "../s3c2440_soc.h"
 
 #define HCLK 100
-/*根据传入的参数设置lcd控制i器*/
+
 void jz2440_lcd_pin_init(void)
 {
 	/* 初始化引脚 : 背光引脚 */
 	GPBCON &= ~0x3;
 	GPBCON |= 0x01;
-	/*lcd专用引脚*/
-	GPCCON = 0xaaaaaaaa;//全部设置为
+
+	/* LCD专用引脚 */
+	GPCCON = 0xaaaaaaaa;
 	GPDCON = 0xaaaaaaaa;
-	GPGCON |= (3 << 8);
+
+	/* PWREN */
+	GPGCON |= (3<<8);
 }
+
+
+/* 根据传入的LCD参数设置LCD控制器 */
 void s3c2440_lcd_controller_init(p_lcd_params plcdparams)
 {
 	int pixelplace;
@@ -28,7 +35,7 @@ void s3c2440_lcd_controller_init(p_lcd_params plcdparams)
 	 * [4:1]: bpp mode
 	 * [0]  : LCD video output and the logic enable/disable
 	 */
-	int clkval = (double)HCLK/plcdparams->time_seq.vclk/2-1+0.5;//除法报错问题
+	int clkval = (float)HCLK/plcdparams->time_seq.vclk/2-1+0.5;
 	//int clkval = 5;
 	int bppmode = plcdparams->bpp == 8  ? 0xb :\
 				  plcdparams->bpp == 16 ? 0xc :\
@@ -77,11 +84,7 @@ void s3c2440_lcd_controller_init(p_lcd_params plcdparams)
 	pixelplace = plcdparams->bpp == 32 ? (0) : \
 	             plcdparams->bpp == 16 ? (1) : \
 	             (1<<1);  /* 8bpp */
-	/*
-	if(plcdparams->bpp == 32)
-	{
-		pixelplace =0;//24 和 32效果一样都占据32bit
-	}*/
+	
 	LCDCON5 = (plcdparams->pins_pol.vclk<<10) |\
 	          (plcdparams->pins_pol.rgb<<7)   |\
 	          (plcdparams->pins_pol.hsync<<9) |\
@@ -89,21 +92,22 @@ void s3c2440_lcd_controller_init(p_lcd_params plcdparams)
  			  (plcdparams->pins_pol.de<<6)    |\
 			  (plcdparams->pins_pol.pwren<<5) |\
 			  (1<<11) | pixelplace;
-	/*framebuffer addr
-	LCDBANK [29:21] A[30:22] of the bank location for the video buffer
-LCDBASEU [20:0] These bits indicate A[21:1] of the start address
-of the upper address counter,
-			   */
-	addr = plcdparams->fb_base  & ~(1 << 31); //30:1 有用位
-	LCDSADDR1 = (addr >> 1);
+
+	/* framebuffer地址 */
 	/*
-	LCDBASEL [20:0]
-	These bits indicate A[21:1] of the start address
-	of the lower address counter,*/
+	 * [29:21] : LCDBANK, A[30:22] of fb
+	 * [20:0]  : LCDBASEU, A[21:1] of fb
+	 */
+	addr = plcdparams->fb_base & ~(1<<31);
+	LCDSADDR1 = (addr >> 1);
+
+	/* 
+	 * [20:0] : LCDBASEL, A[21:1] of end addr
+	 */
 	addr = plcdparams->fb_base + plcdparams->xres*plcdparams->yres*plcdparams->bpp/8;
 	addr >>=1;
-	addr &= 0x1FFFFF;
-	LCDSADDR2 = addr ;//看参考例程
+	addr &= 0x1fffff;
+	LCDSADDR2 = addr;//	
 }
 
 void s3c2440_lcd_controller_enalbe(void)
@@ -117,6 +121,7 @@ void s3c2440_lcd_controller_enalbe(void)
 	/* LCDCON1'BIT 0 : 设置LCD控制器是否输出信号 */
 	LCDCON1 |= (1<<0);
 }
+
 void s3c2440_lcd_controller_disable(void)
 {
 	/* 背光引脚 : GPB0 */
@@ -128,11 +133,36 @@ void s3c2440_lcd_controller_disable(void)
 	/* LCDCON1'BIT 0 : 设置LCD控制器是否输出信号 */
 	LCDCON1 &= ~(1<<0);
 }
+
+
+/* 设置调色板之前, 先关闭lcd_controller */
+void s3c2440_lcd_controller_init_palette(void)
+{
+	volatile unsigned int *palette_base =  (volatile unsigned int *)0x4D000400;
+	int i;
+
+	int bit = LCDCON1 & (1<<0);
+
+	/* LCDCON1'BIT 0 : 设置LCD控制器是否输出信号 */
+	if (bit)
+		LCDCON1 &= ~(1<<0);
+
+	for (i = 0; i < 256; i++)
+	{
+		/* 低16位 : rgb565 */	
+		*palette_base++ = i;
+	}
+
+	if (bit)
+		LCDCON1 |= (1<<0);
+}
+
 struct lcd_controller s3c2440_lcd_controller = {
-	.name = "s3c2440",
+	.name    = "s3c2440",
 	.init    = s3c2440_lcd_controller_init,
 	.enable  = s3c2440_lcd_controller_enalbe,
 	.disable = s3c2440_lcd_controller_disable,
+	.init_palette = s3c2440_lcd_controller_init_palette,
 };
 
 
@@ -140,6 +170,4 @@ void s3c2440_lcd_contoller_add(void)
 {
 	register_lcd_controller(&s3c2440_lcd_controller);
 }
-
-
 

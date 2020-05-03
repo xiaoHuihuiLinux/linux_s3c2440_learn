@@ -1,5 +1,4 @@
 
-
 #include "framebuffer.h"
 
 /*
@@ -159,5 +158,4 @@
 		 }	   
 	 }	
  }	
-
 
