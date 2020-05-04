@@ -73,7 +73,8 @@ static int my_vprintf(const char *fmt, va_list ap)
 				outc(*fmt);
 				continue;
 			}
-			
+		lead=' ';
+		maxwidth=0;	
 		//format : %08d, %8d,%d,%u,%x,%f,%c,%s 
 		    fmt++;
 		if(*fmt == '0'){
