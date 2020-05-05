@@ -86,7 +86,6 @@ void Isr_Adc(void)
 		y &= 0x3FFF;
 		printf("x = %08d,y = %08d\n\r",x ,y);
 	}
-	
 	enter_wait_pen_up_mode();//µÈ´ýËÉ¿ª
 }
 #if 0

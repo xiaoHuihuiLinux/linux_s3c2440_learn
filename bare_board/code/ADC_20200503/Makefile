@@ -1,5 +1,5 @@
-objs = start.o led.o uart.o init.o nand_flash.o main.o exception.o interrupt.o timer.o nor_flash.o my_printf.o string_utils.o lib1funcs.o
-
+objs = start.o init.o nand_flash.o led.o uart.o  main.o exception.o interrupt.o timer.o nor_flash.o my_printf.o string_utils.o lib1funcs.o
+#将init.o nand_flash.o 放在前面 因为如果是nand启动的话 led改动前面的有可能超过4k
 objs += lcd/font.o
 objs += lcd/framebuffer.o
 objs += lcd/geometry.o

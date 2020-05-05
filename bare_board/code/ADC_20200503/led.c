@@ -5,13 +5,31 @@ void delay(volatile int d)
 {
 	while (d--);
 }
+/*每10ms调用一次，没500ms操作一次led实现计数*/
+void led_timer_irq(void)//定时器中断处函数可以调用一个函数指针数组来更灵活的处理一些东西
+{
+	/* 点灯计数 */
+	static int timer_num =0;
+	static int cnt = 0;
+	int tmp;
+	timer_num++;
+	if(timer_num < 50)
+		return ;
+	timer_num =0;
+	cnt++;
 
+	tmp = ~cnt;
+	tmp &= 7;
+	GPFDAT &= ~(7<<4);
+	GPFDAT |= (tmp<<4);
+}
 
 int led_init(void)
 {
 	/* 设置GPFCON让GPF4/5/6配置为输出引脚 */
 	GPFCON &= ~((3<<8) | (3<<10) | (3<<12));
 	GPFCON |=  ((1<<8) | (1<<10) | (1<<12));
+	register_timer("led", led_timer_irq);
 }
 
 
