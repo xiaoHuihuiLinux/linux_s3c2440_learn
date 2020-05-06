@@ -28,6 +28,7 @@
 
 #define WAIT_INT_MODE (3)
 #define NO_OPR_MODE (0)
+static volatile int g_ts_timer_enable = 0;
 void enter_wait_pen_down_mode(void)//触摸等待松开
 {
 	ADCTSC  = WAIT_PEN_DOWN |PULLUP_ENABLE | YM_ENABLE | YP_DISABLE | XP_DISABLE  |XM_DISABLE |WAIT_INT_MODE;
@@ -76,6 +77,45 @@ void Isr_Tc(void)
 		ADCCON |= ( 1 << 0);
 	}
 }
+static void ts_timer_enable(void)
+{
+	g_ts_timer_enable = 1;
+}
+static void ts_timer_disenable(void)
+{
+	g_ts_timer_enable = 0;
+}
+static int  get_status_of_ts_timer(void)
+{
+	return g_ts_timer_enable ;
+}
+
+/*
+每10ms该函数被调用一次
+*/
+void touchscreen_timer_irq(void)
+{
+	/*如果触摸屏仍被按下，进入自动测量模式启动ADC*/
+	if(get_status_of_ts_timer() == 0)
+	{
+		return;
+	}
+	if(ADCDAT0 & (1 << 15))//松开
+	{
+		ts_timer_disenable();
+		enter_wait_pen_down_mode();//等待它按下模式
+		return ;
+	}
+	else/*按下状态*
+	{
+		/*进入自动测量模式*/
+		enter_auto_measure_mode();
+		/*启动ADC*/
+		ADCCON |= ( 1 << 0);
+}
+
+
+
 void Isr_Adc(void)
 {
 	int x = ADCDAT0;
@@ -85,6 +125,13 @@ void Isr_Adc(void)
 		x &= 0x3FFF;
 		y &= 0x3FFF;
 		printf("x = %08d,y = %08d\n\r",x ,y);
+		/*启动定时器*/
+		ts_timer_enable();
+	}
+	else //松开
+	{
+		ts_timer_disenable();
+		enter_wait_pen_down_mode();//等待它按下
 	}
 	enter_wait_pen_up_mode();//等待松开
 }
@@ -137,6 +184,8 @@ void touchscreen_init(void)
 	adc_ts_int_init();
 	/*设置触摸屏接口：寄存器*/
 	adc_ts_req_init();
+	/*注册定时器处理函数,我们在timer中设置了一个10ms的定时器中断*/
+	register_timer("touchscreen", touchscreen_timer_irq);
 	/*让触摸屏控制器进入等待中断模式*/
 	enter_wait_pen_down_mode();
 }
