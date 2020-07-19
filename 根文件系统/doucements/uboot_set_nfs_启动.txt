@@ -1,0 +1,5 @@
+
+set bootargs noinitrd root=/dev/nfs nfsroot=192.168.0.105: /work/nfs_root/first_fs ip=192.168.0.11:192.168.0.105:192.168.0.1:255.255.255.0::eth0:off  init=/linuxrc console=ttySAC0
+set bootargs console=ttySAC0,115200 root=/dev/nfs nfsroot=192.168.0.105:/work/nfs_root/first_fs ip=192.168.0.11:192.168.0.105:192.168.0.1:255.255.255.0::eth0:off init=/linuxrc
+/*第一个是老师视频中的命令 第二种是我自己琢磨的*/
+set  bootargs console=ttySAC0,115200 root=/dev/nfs nfsroot=192.168.0.105:/work/nfs_root/first_fs ip=192.168.0.11:192.168.0.105:192.168.0.1:255.255.255.0::eth0:off init=/linuxrc
