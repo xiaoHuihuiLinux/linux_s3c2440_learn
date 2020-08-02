@@ -1,0 +1,1 @@
+---- second_drv_open Matches (2 in 1 files) ----Second_drv.c (d:\weidongshan_learn\driver\char_driver\second_key_driver):static int second_drv_open(struct inode *inode,struct file *file)Second_drv.c (d:\weidongshan_learn\driver\char_driver\second_key_driver):    .open   =  second_drv_open,     

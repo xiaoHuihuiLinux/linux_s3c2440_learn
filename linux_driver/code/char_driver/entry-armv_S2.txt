@@ -1,0 +1,93 @@
+b	vector_irq + stubs_offset  //同理的中断产生的时候 vector_irq 也是宏 
+
+vector_stub	irq, IRQ_MODE, 4
+
+.macro	vector_stub, name, mode, correction=0
+	.align	5
+
+vector_irq:
+	.if \correction
+	sub	lr, lr, #4//计算返回地址
+	.endif
+
+	@
+	@ Save r0, lr_<exception> (parent PC) and spsr_<exception>
+	@ (parent CPSR)
+	@
+	stmia	sp, {r0, lr}		@ save r0, lr
+	mrs	lr, spsr
+	str	lr, [sp, #8]		@ save spsr
+
+	@
+	@ Prepare for SVC32 mode.  IRQs remain disabled.
+	@
+	mrs	r0, cpsr
+	eor	r0, r0, #(\mode ^ SVC_MODE)
+	msr	spsr_cxsf, r0
+
+	@
+	@ the branch table must immediately follow this code
+	@
+	and	lr, lr, #0x0f
+	mov	r0, sp
+	ldr	lr, [pc, lr, lsl #2]
+	movs	pc, lr			@ branch to handler in SVC mode
+	.endm
+
+	.globl	__stubs_start
+__stubs_start:
+//继续跳转到这里
+	.long	__irq_usr			@  0  (USR_26 / USR_32) //用户态发生中断跳转到这里
+	.long	__irq_invalid			@  1  (FIQ_26 / FIQ_32)
+	.long	__irq_invalid			@  2  (IRQ_26 / IRQ_32)
+	.long	__irq_svc			@  3  (SVC_26 / SVC_32) //管理模式发生中断跳转到这里
+	.long	__irq_invalid			@  4
+	.long	__irq_invalid			@  5
+	.long	__irq_invalid			@  6
+	.long	__irq_invalid			@  7
+	.long	__irq_invalid			@  8
+	.long	__irq_invalid			@  9
+	.long	__irq_invalid			@  a
+	.long	__irq_invalid			@  b
+	.long	__irq_invalid			@  c
+	.long	__irq_invalid			@  d
+	.long	__irq_invalid			@  e
+	.long	__irq_invalid			@  f
+	
+__irq_usr 在用户态发生的中断就是__irq_usr然后跳转到
+1：
+__irq_usr:
+	usr_entry//堆栈的一些操作
+
+#ifdef CONFIG_TRACE_IRQFLAGS
+	bl	trace_hardirqs_off
+#endif
+	get_thread_info tsk
+#ifdef CONFIG_PREEMPT
+	ldr	r8, [tsk, #TI_PREEMPT]		@ get preempt count
+	add	r7, r8, #1			@ increment it
+	str	r7, [tsk, #TI_PREEMPT]
+#endif
+
+	irq_handler//也是一个宏跳到3
+#ifdef CONFIG_PREEMPT
+	ldr	r0, [tsk, #TI_PREEMPT]
+	str	r8, [tsk, #TI_PREEMPT]
+	teq	r0, r7
+	strne	r0, [r0, -r0]
+#endif
+#ifdef CONFIG_TRACE_IRQFLAGS
+	bl	trace_hardirqs_on
+#endif
+
+3.
+	.macro	irq_handler
+	get_irqnr_preamble r5, lr
+1:	get_irqnr_and_base r0, r6, r5, lr
+	movne	r1, sp
+	@
+	@ routine called with r0 = irq number, r1 = struct pt_regs *
+	@
+	adrne	lr, 1b
+	bne	asm_do_IRQ//跳转到这里
+	

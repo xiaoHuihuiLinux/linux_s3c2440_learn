@@ -1,0 +1,58 @@
+/*vector_stub是一个宏它根据后面的参数“und, UND_MODE”定义了以
+“vector_und”为标号的一段代码*/
+
+vector_stub	und, UND_MODE
+具体的宏展开如下：
+	.macro	vector_stub, name, mode, correction=0
+	.align	5
+vector_und://vector_\name: 将 und 替换
+	.if \correction  //correction == 0 所以不执行这段代码
+	sub	lr, lr, #\correction
+	.endif
+
+	@
+	@ Save r0, lr_<exception> (parent PC) and spsr_<exception>
+	@ (parent CPSR)
+	@
+	stmia	sp, {r0, lr}		@ save r0, lr
+	mrs	lr, spsr
+	str	lr, [sp, #8]		@ save spsr
+
+	@
+	@ Prepare for SVC32 mode.  IRQs remain disabled. //转换到管理模式
+	@
+	mrs	r0, cpsr
+	eor	r0, r0, #(\mode ^ SVC_MODE)
+	msr	spsr_cxsf, r0
+
+	@
+	@ the branch table must immediately follow this code
+	@
+	and	lr, lr, #0x0f
+	mov	r0, sp
+	ldr	lr, [pc, lr, lsl #2]
+	movs	pc, lr			@ branch to handler in SVC mode  //会继续跳转
+	.endm
+
+	.globl	__stubs_start
+__stubs_start:
+//会继续跳转到这里内核entry-armv.S 1004行这里也就是定义und 宏 的下面的代码 vector_stub	und, UND_MODE
+////这里肯定做的时恢复现场这类
+.long	__und_usr			@  0 (USR_26 / USR_32)
+	.long	__und_invalid			@  1 (FIQ_26 / FIQ_32)
+	.long	__und_invalid			@  2 (IRQ_26 / IRQ_32)
+	.long	__und_svc			@  3 (SVC_26 / SVC_32)
+	.long	__und_invalid			@  4  
+	.long	__und_invalid			@  5
+	.long	__und_invalid			@  6
+	.long	__und_invalid			@  7
+	.long	__und_invalid			@  8
+	.long	__und_invalid			@  9
+	.long	__und_invalid			@  a
+	.long	__und_invalid			@  b
+	.long	__und_invalid			@  c
+	.long	__und_invalid			@  d
+	.long	__und_invalid			@  e
+	.long	__und_invalid			@  f
+
+	.align	5
