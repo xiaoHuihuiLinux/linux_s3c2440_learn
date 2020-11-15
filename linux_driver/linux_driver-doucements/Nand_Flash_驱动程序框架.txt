@@ -1,0 +1,52 @@
+NAND FLASH驱动程序层次：
+在我们的内核启动的时候打印的信息：
+S3C24XX NAND Driver, (c) 2004 Simtec Electronics
+s3c2440-nand s3c2440-nand: Tacls=3, 30ns Twrph0=7 70ns, Twrph1=3 30ns
+NAND device: Manufacturer ID: 0xec, Chip ID: 0xda (Samsung NAND 256MiB 3,3V 8-bit)
+Scanning device for bad blocks
+Bad eraseblock 256 at 0x02000000
+Bad eraseblock 257 at 0x02020000
+Bad eraseblock 319 at 0x027e0000
+Bad eraseblock 606 at 0x04bc0000
+Bad eraseblock 608 at 0x04c00000
+Creating 4 MTD partitions on "NAND 256MiB 3,3V 8-bit":
+0x00000000-0x00040000 : "bootloader"
+0x00040000-0x00060000 : "params"
+0x00060000-0x00260000 : "kernel"
+0x00260000-0x10000000 : "root"
+我们在内核搜索"S3C24XX NAND Driver"
+在S3c2410.c (drivers\mtd\nand\s3c2410.c)
+//从他的init函数可以看出他是平台总线驱动模型。假如内核中有同名的"s3c2410-nand"他会调用s3c2410_nand_probe函数
+s3c2410_nand_inithw（）//初始化硬件
+s3c2410_nand_init_chip//初始化芯片
+nand_scan（）  //在drivers/mtd/nand/nand_base.c （这是一个通用的模块）  根据nand_chip的底层操作函数识别NAND FLASH，构造mtd_info
+	nand_scan_ident(struct mtd_info *mtd, int maxchips)
+		nand_set_defaults(chip, busw);
+			if (!chip->select_chip)
+				chip->select_chip = nand_select_chip; // 默认值不适用
+
+			if (chip->cmdfunc == NULL)
+				chip->cmdfunc = nand_command;
+									chip->cmd_ctrl(mtd, command, ctrl);
+			if (!chip->read_byte)
+				chip->read_byte = nand_read_byte;
+									readb(chip->IO_ADDR_R);
+			if (chip->waitfunc == NULL)
+				chip->waitfunc = nand_wait;
+									chip->dev_ready
+		nand_get_flash_type(mtd, chip, busw, &nand_maf_id)
+			chip->select_chip(mtd, 0);///* Select the device */
+                                                chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);///* Send the command for reading device ID */
+           			*maf_id = chip->read_byte(mtd);///* Read manufacturer and device IDs */
+            			dev_id = chip->read_byte(mtd);///* Read manufacturer and device IDs */
+			//用得到dev_id在数组中比较查询 
+			for (i = 0; nand_flash_ids[i].name != NULL; i++) {
+				if (dev_id == nand_flash_ids[i].id) {
+				type =  &nand_flash_ids[i];
+				break;
+			}
+			}
+           				
+	nand_scan_tail(mtd);			
+s3c2410_nand_add_partition（）//添加分区
+	add_mtd_partitions（）

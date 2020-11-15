@@ -1,0 +1,10 @@
+---- uda1341_volume Matches (9 in 1 files) ----
+s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) line 213 : static int uda1341_volume;
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			//uda1341_volume = 63 - (((val & 0xff) + 1) * 63) / 100;
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			//uda1341_l3_data(uda1341_volume);
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			uda1341_volume = (((val & 0xff) + 1) * 63) / 100;
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			wm8976_write_reg(52,(1 << 8) | uda1341_volume);//寄存器52 
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			wm8976_write_reg(53,(1 << 8) | uda1341_volume);
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			//val = ((63 - uda1341_volume) * 100) / 63;
+smdk2410_mixer_ioctl in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 			val = ((uda1341_volume) * 100) / 63;
+init_wm8976 in s3c-wm8976.c (D:\WeiDongShan_Learn\Driver\Driver_basedOn_Jz2440\code\声卡驱动) : 	uda1341_volume = 57;

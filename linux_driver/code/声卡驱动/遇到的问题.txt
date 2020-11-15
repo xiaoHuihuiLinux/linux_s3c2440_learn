@@ -1,0 +1,23 @@
+在移植mp3播放器madplay移植过程。编译libid3tag-0.15.1b  发生错误：
+首先是：configure: error: zlib.h was not found
+按照网上教程：
+解决办法：
+
+1、下载zlib-1.2.3.tar.gz，然后解压：tar xjf zlib-1.2.3.tar.gz
+
+2、在zlib-1.2.3目录下执行： ./configure --prefix=/work/drivers_and_test/sound_test/app/tmp
+//记得要改makefile  CC =arm-linux-gcc
+3、make && make install
+
+4、zlib安装成功
+然后在libid3tag-0.15.1b执行：./configure --host=arm-linux --prefix=/work/drivers_and_test/sound_test/app/tmp
+还是显示这个问题：
+configure: error: zlib.h was not found
+继续执行：
+ ./configure --host=arm-linux --prefix=/work/drivers_and_test/sound_test/app/tmp CPPFLAGS="-I/work/drivers_and_test/sound_test/app/tmp/include" LDFLAGS="-L/work/drivers_and_test/sound_test/app/tmp/lib"
+显示
+configure: error: libz was not found
+
+./configure --host=arm-linux --prefix=/work/drivers_and_test/sound_test/app/tmp LDFLAGS="-
+L/work/drivers_and_test/sound_test/app/tmp/lib" CFLAGS="-I
+/work/drivers_and_test/sound_test/app/tmp/include"
